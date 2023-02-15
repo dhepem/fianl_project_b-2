@@ -4,7 +4,7 @@ import torch
 from image_process import load_img, save_img
 import torch.nn.functional as F
 from skimage import img_as_ubyte
-
+import torch.nn as nn
 from model import Restormer
 
 parameters = {'inp_channels': 3, 'out_channels': 3, 'dim': 48, 'num_blocks': [4, 6, 6, 8], 'num_refinement_blocks': 4, 'heads': [
@@ -13,11 +13,11 @@ img_multiple_of = 8
 
 
 def motion_deblurring(img):
+    model = Restormer(**parameters)
     weights = os.path.join('weigths', 'motion_deblurring.pth')
     checkpoint = torch.load(weights)
+    model.load_state_dict(checkpoint['params'], strict=False)
     device = torch.device('cpu')
-    model = Restormer(**parameters)
-    model.load_state_dict(checkpoint['params'])
     model.eval()
     with torch.no_grad():
         input_ = torch.from_numpy(img).float().div(
@@ -47,8 +47,8 @@ def denoising(img):
     model = Restormer(**parameters)
     device = torch.device('cpu')
     checkpoint = torch.load(weights)
-    model.load_state_dict(checkpoint['params'])
     model.eval()
+    model.load_state_dict(checkpoint['params'], strict=False)
 
     with torch.no_grad():
         input_ = torch.from_numpy(img).float().div(
@@ -73,6 +73,7 @@ def denoising(img):
 
 
 def processAI(img):
+
     res = motion_deblurring(img)
     res = denoising(res)
     return res
