@@ -47,18 +47,19 @@ def download_file():
 @app.route('/process', methods=["POST", "GET"])
 def processing():
     if request.method == "POST":
-        # try:
-        img = cv2.imread('static/'+image.filename)
-        ai = processAI(img)
-        cv2.imwrite('static/result.jpg', ai)
-        cv2.imwrite('ocrtemp/result.jpg', ai)
-        ocr_img = cv2.imread('./ocrtemp/result.jpg')
-        ocr_result = ocr(ocr_img)
-        print(ocr_result)
-        return render_template("index.html", result_file="result.jpg", image_file=image.filename, text=ocr_result)
-        # except:
-        #     flash("Restomer를 실패하였습니다.")
-        #     return render_template("index.html", image_file="picture.jpg")
+        try:
+            if image is not None:
+                img = cv2.imread('static/'+image.filename)
+                ai = processAI(img)
+                cv2.imwrite('static/result.jpg', ai)
+                cv2.imwrite('ocrtemp/result.jpg', ai)
+                ocr_img = cv2.imread('./ocrtemp/result.jpg')
+                ocr_result = ocr(ocr_img)
+                print(ocr_result)
+                return render_template("index.html", result_file="result.jpg", image_file=image.filename, text=ocr_result)
+        except:
+            flash("사진을 업로드 한 후 RESTORE를 눌러주세요!")
+            return render_template("index.html", image_file="picture.jpg")
     else:
         return render_template("index.html", image_file="picture.jpg")
 
