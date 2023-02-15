@@ -2,6 +2,7 @@ from flask import Flask, request, render_template, send_file, flash
 import cv2
 from ai import processAI
 from werkzeug.utils import secure_filename
+from demofunction import ocr
 
 app = Flask(__name__)
 app.secret_key = 'dlgkals2633'
@@ -50,7 +51,11 @@ def processing():
         img = cv2.imread('static/'+image.filename)
         ai = processAI(img)
         cv2.imwrite('static/result.jpg', ai)
-        return render_template("index.html", result_file="result.jpg", image_file=image.filename)
+        cv2.imwrite('ocrtemp/result.jpg', ai)
+        ocr_img = cv2.imread('./ocrtemp/result.jpg')
+        ocr_result = ocr(ocr_img)
+        print(ocr_result)
+        return render_template("index.html", result_file="result.jpg", image_file=image.filename, text=ocr_result)
         # except:
         #     flash("Restomer를 실패하였습니다.")
         #     return render_template("index.html", image_file="picture.jpg")
